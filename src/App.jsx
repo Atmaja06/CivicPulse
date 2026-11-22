@@ -1,122 +1,87 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
 
-function App() {
-  const [count, setCount] = useState(0)
+import { useState } from "react";
+
+import Navbar from "./components/Navbar.jsx";
+import Home from "./pages/Home.jsx";
+import ReportIssue from "./pages/ReportIssue.jsx";
+import TrackIssues from "./pages/TrackIssues.jsx";
+import Login from "./pages/Login.jsx";
+import Signup from "./pages/Signup.jsx";
+import Dashboard from "./pages/Dashboard.jsx";
+import { CivicPulseProvider } from "./context/CivicPulseContext.jsx";
+
+function AppContent() {
+  const [currentPage, setCurrentPage] = useState("home");
+
+  const navigate = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const renderPage = () => {
+    switch (currentPage) {
+      case "report":
+        return <ReportIssue navigate={navigate} />;
+
+      case "track":
+        return <TrackIssues navigate={navigate} />;
+
+      case "login":
+        return <Login navigate={navigate} />;
+
+      case "signup":
+        return <Signup navigate={navigate} />;
+
+      case "authority":
+        return <Dashboard navigate={navigate} />;
+
+      default:
+        return <Home navigate={navigate} />;
+    }
+  };
+
+  const isAuthority = currentPage === "authority";
 
   return (
     <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
+      {!isAuthority && (
+        <Navbar currentPage={currentPage} navigate={navigate} />
+      )}
+
+      {renderPage()}
+
+      {!isAuthority && (
         <button
           type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
+          onClick={() => navigate("authority")}
+          style={{
+            position: "fixed",
+            bottom: "18px",
+            right: "18px",
+            zIndex: 999,
+            padding: "10px 15px",
+            border: "none",
+            borderRadius: "9px",
+            background: "#174B38",
+            color: "#ffffff",
+            fontWeight: "600",
+            cursor: "pointer",
+            boxShadow: "0 3px 12px rgba(0,0,0,0.18)",
+          }}
         >
-          Count is {count}
+          Authority Preview →
         </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
+      )}
     </>
-  )
+  );
 }
 
-export default App
+function App() {
+  return (
+    <CivicPulseProvider>
+      <AppContent />
+    </CivicPulseProvider>
+  );
+}
+
+export default App;
