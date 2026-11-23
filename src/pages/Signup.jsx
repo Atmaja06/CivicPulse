@@ -1,5 +1,7 @@
+
 import { useState } from "react";
 import "./Auth.css";
+import { registerUser } from "../services/authService";
 
 function Signup({ navigate }) {
   const [name, setName] = useState("");
@@ -8,8 +10,9 @@ function Signup({ navigate }) {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSignup = (e) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
 
     if (password.length < 8) {
@@ -22,9 +25,33 @@ function Signup({ navigate }) {
       return;
     }
 
-    setMessage(
-      "Sign up form validated. Account creation will be enabled after backend integration."
-    );
+    try {
+      setLoading(true);
+      setMessage("Creating your account...");
+
+      const data = await registerUser(
+        name,
+        email,
+        password,
+        phone
+      );
+
+      if (data.session) {
+        setMessage("Account created successfully!");
+        navigate("home");
+      } else {
+        setMessage(
+          "Account created! Please check your email to verify your account before logging in."
+        );
+      }
+    } catch (error) {
+      console.error("Signup error:", error);
+      setMessage(
+        error.message || "Account creation failed. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -34,7 +61,9 @@ function Signup({ navigate }) {
         <div className="auth-icon">C</div>
 
         <p className="auth-eyebrow">JOIN YOUR COMMUNITY</p>
+
         <h1>Create an Account</h1>
+
         <p className="auth-description">
           Join CivicPulse and help make your neighbourhood better.
         </p>
@@ -91,8 +120,12 @@ function Signup({ navigate }) {
             required
           />
 
-          <button type="submit" className="auth-submit">
-            Create Account
+          <button
+            type="submit"
+            className="auth-submit"
+            disabled={loading}
+          >
+            {loading ? "Creating Account..." : "Create Account"}
           </button>
         </form>
 
@@ -100,10 +133,16 @@ function Signup({ navigate }) {
 
         <p className="auth-switch">
           Already have an account?{" "}
-          <button onClick={() => navigate("login")}>Login</button>
+          <button type="button" onClick={() => navigate("login")}>
+            Login
+          </button>
         </p>
 
-        <button className="auth-back" onClick={() => navigate("home")}>
+        <button
+          type="button"
+          className="auth-back"
+          onClick={() => navigate("home")}
+        >
           ← Back to Home
         </button>
 
